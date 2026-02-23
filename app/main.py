@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, status
+from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import os
+import shutil
 import uvicorn
 
 
@@ -9,7 +11,16 @@ class Notice(BaseModel):
     text: str
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if not os.path.exists("text"):
+        os.mkdir("text")
+    yield
+    if os.path.isdir("text"):
+        shutil.rmtree("text")
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/file/{name:str}")
@@ -21,8 +32,6 @@ def fetch_file(name: str) -> str:
 
 @app.post("/file")
 def create_file(notice: Notice) -> Notice:
-    if not os.path.exists("text"):
-        os.mkdir("text")
     f = open("text/" + notice.name + ".txt", "x")
     f.write(notice.text)
     return notice
@@ -30,8 +39,6 @@ def create_file(notice: Notice) -> Notice:
 
 @app.put("/file")
 def replace_file(notice: Notice) -> Notice:
-    if not os.path.exists("text"):
-        os.mkdir("text")
     with open("text/" + notice.name + ".txt", "w") as file:
         file.write(notice.text)
         return notice
