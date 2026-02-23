@@ -29,7 +29,7 @@ def create_file(notice: Notice) -> Notice:
 
 
 @app.put("/file")
-def append_text(notice: Notice) -> Notice:
+def replace_file(notice: Notice) -> Notice:
     if not os.path.exists("text"):
         os.mkdir("text")
     with open("text/" + notice.name + ".txt", "w") as file:
