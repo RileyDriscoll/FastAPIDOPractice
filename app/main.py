@@ -13,14 +13,14 @@ app = FastAPI()
 
 
 @app.get("/file/{name:str}")
-def fetch_file(name: str):
+def fetch_file(name: str) -> str:
     with open("text/" + name + ".txt", "r") as file:
         contents = file.read()
         return contents
 
 
 @app.post("/file")
-def create_file(notice: Notice):
+def create_file(notice: Notice) -> Notice:
     if not os.path.exists("text"):
         os.mkdir("text")
     f = open("text/" + notice.name + ".txt", "x")
@@ -29,7 +29,7 @@ def create_file(notice: Notice):
 
 
 @app.put("/file")
-def append_text(notice: Notice):
+def append_text(notice: Notice) -> Notice:
     if not os.path.exists("text"):
         os.mkdir("text")
     with open("text/" + notice.name + ".txt", "w") as file:
